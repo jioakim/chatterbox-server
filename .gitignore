@@ -26,6 +26,9 @@ pids
 logs
 results
 
+### Client ###
+client
+
 
 ### NPM ###
 npm-debug.log

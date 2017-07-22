@@ -56,6 +56,7 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+//TODO: Work on this Test!
   it('Should accept posts to /classes/room', function() {
     var stubMsg = {
       username: 'Jono',
