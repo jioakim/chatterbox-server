@@ -1,4 +1,5 @@
 var request = require('request');
+var _ = require('lodash');
 var expect = require('chai').expect;
 
 describe('server', function() {
@@ -52,15 +53,55 @@ describe('server', function() {
       uri: 'http://127.0.0.1:3000/classes/messages',
       json: {
         username: 'Jono',
-        message: 'Do my bidding!'}
+        message: 'Do my super bidding!'}
     };
 
     request(requestParams, function(error, response, body) {
       // Now if we request the log, that message we posted should be there:
       request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
         var messages = JSON.parse(body).results;
-        expect(messages[0].username).to.equal('Jono');
-        expect(messages[0].message).to.equal('Do my bidding!');
+        expect(messages[2].username).to.equal('Jono');
+        expect(messages[2].message).to.equal('Do my super bidding!');
+        done();
+      });
+    });
+  });
+
+  it('should respond with messages that contain an object ID property', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        message: 'Do my great bidding!'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      // Now if we request the log, that message we posted should be there:
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messages = JSON.parse(body).results;
+        expect(messages[3].username).to.equal('Jono');
+        expect(messages[3].message).to.equal('Do my great bidding!');
+        expect(messages[3]).to.have.property('objectId');
+        done();
+      });
+    });
+  });
+
+  it('should have different Object Id properties for different messages', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        message: 'Do my great bidding!'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      // Now if we request the log, that message we posted should be there:
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messages = JSON.parse(body).results;
+        var ids = _.map(messages, 'objectId');
+        var uniqIds = _.uniq(ids);
+        expect(messages.length).to.equal(uniqIds.length);
         done();
       });
     });

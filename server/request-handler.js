@@ -13,7 +13,21 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 var messagesObject = {};
 messagesObject.results = [];
+messagesObject.results[0] = {
+  "objectId": 0,
+  "username": "Spiderman",
+  "roomname": "Bat Cave",
+  "text": "Check out this cool silly string thing"
+};
 
+// {
+//       "objectId": "b8s8y48AXC",
+//       "username": null,
+//       "roomname": null,
+//       "text": null,
+//       "createdAt": "2017-05-27T18:59:15.320Z",
+//       "updatedAt": "2017-06-24T21:36:48.320Z"
+//     }
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -30,8 +44,13 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  if (request.method === 'GET' && request.url === '/classes/messages') {
-    console.log('cooll or anything +11');
+  if (request.method === 'OPTIONS' && request.url === '/classes/messages') {
+    var statusCode = 200;
+    var headers = defaultCorsHeaders;
+    headers['Content-Type'] = 'application/json';
+    response.writeHead(statusCode, headers);
+    response.end();
+  } else if (request.method === 'GET' && request.url === '/classes/messages') {
     // The outgoing status.
     var statusCode = 200;
 
@@ -56,7 +75,35 @@ var requestHandler = function(request, response) {
     // Calling .end "flushes" the response's internal buffer, forcing
     // node to actually send all the data over to the client.
     response.end(JSON.stringify(messagesObject));
+  } else if (request.method === 'POST' && request.url === '/classes/messages' ) {
+    var dataStream = '';
+    request.on('data', (data) => {
+      dataStream += data;
+      // console.log(data);
+    });
+
+    request.on('end', () => {
+      dataStream = JSON.parse(dataStream);
+      dataStream.objectId = messagesObject.results.length;
+      messagesObject.results.push(dataStream);
+      var statusCode = 201;
+      var headers = defaultCorsHeaders;
+      headers['Content-Type'] = 'application/json';
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(messagesObject));
+    });
+
+
+  } else {
+    var statusCode = 404;
+    console.log(request.url);
+    console.log(request.method);
+    var headers = defaultCorsHeaders;
+    headers['Content-Type'] = 'application/json';
+    response.writeHead(statusCode, headers);
+    response.end('silly string');
   }
+
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
 

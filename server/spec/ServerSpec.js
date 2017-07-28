@@ -56,11 +56,12 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
-//TODO: Work on this Test!
-  it('Should accept posts to /classes/room', function() {
+  it('Should accept posts to /classes/messages', function() {
     var stubMsg = {
+      objectId: 1,
       username: 'Jono',
-      message: 'Do my bidding!'
+      roomname: 'Scary room',
+      text: 'test'
     };
     var req = new stubs.request('/classes/messages', 'POST', stubMsg);
     var res = new stubs.response();
@@ -72,7 +73,7 @@ describe('Node Server Request Listener Function', function() {
 
     // Testing for a newline isn't a valid test
     // TODO: Replace with with a valid test
-    // expect(res._data).to.equal(JSON.stringify('\n'));
+    expect(JSON.stringify(JSON.parse(res._data).results[1])).to.equal(JSON.stringify(stubMsg));
     expect(res._ended).to.equal(true);
   });
 
@@ -97,8 +98,8 @@ describe('Node Server Request Listener Function', function() {
     expect(res._responseCode).to.equal(200);
     var messages = JSON.parse(res._data).results;
     expect(messages.length).to.be.above(0);
-    expect(messages[0].username).to.equal('Jono');
-    expect(messages[0].message).to.equal('Do my bidding!');
+    expect(messages[2].username).to.equal('Jono');
+    expect(messages[2].message).to.equal('Do my bidding!');
     expect(res._ended).to.equal(true);
   });
 
